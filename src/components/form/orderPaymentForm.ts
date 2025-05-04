@@ -39,10 +39,6 @@ export class orderPaymentForm extends Form<
 				value: 'cash',
 			});
 		});
-
-		this._submit.addEventListener('click', () => {
-			this.events.emit('orderPayment:submit');
-		});
 	}
 
 	set payment(value: IUserData['payment']) {

@@ -20,8 +20,8 @@ export class orderSuccess extends Component<IOrderResult> {
 		);
 
 		this.buttonClose.addEventListener('click', () => {
-			this.events.emit('modal:close');
 			this.container.closest('.modal').classList.remove('modal_active');
+			this.events.emit('modal:close');
 		});
 	}
 

@@ -19,22 +19,18 @@ export class OrderModel {
 
 	set PaymentMethod(method: PaymentMethod) {
 		this.orderData.payment = method;
-		this.events.emit('order:changed');
 	}
 
 	set Address(address: IOrder['address']) {
 		this.orderData.address = address;
-		this.events.emit('order:changed');
 	}
 
 	set Email(email: IOrder['email']) {
 		this.orderData.email = email;
-		this.events.emit('order:changed');
 	}
 
 	set Phone(phone: IOrder['phone']) {
 		this.orderData.phone = phone;
-		this.events.emit('order:changed');
 	}
 
 	get listIdProductInCart(): IOrder['items'] {
@@ -69,13 +65,11 @@ export class OrderModel {
 	addProductInCart(id: IProduct['id'], price: IProduct['price']) {
 		this.orderData.items.push(id);
 		this.orderData.total += price;
-		this.events.emit('order:changed');
 	}
 
 	delProductInCart(id: IProduct['id'], price: IProduct['price']) {
 		this.orderData.items = this.orderData.items.filter((item) => item !== id);
 		this.orderData.total -= price;
-		this.events.emit('order:changed');
 	}
 
 	clearOrder() {

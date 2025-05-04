@@ -41,18 +41,16 @@ enum appEvents {
 	itemSelected = 'item:selected', //клик по карточке
 	itemsChanged = 'items:changed', //изменение данных в productModal
 	itemAddCart = 'item:addInCart', //товар добавлен в корзину
-	itemDeleteCart = 'item:deleteFromCart', //товар удален из корзины
+	deleteItemFromOrder = 'item:deleteFromCart', //товар удален из корзины
 	openCart = 'cart:open', //клик по корзине
-	changeItemsInOrder = 'order:changed', //изменились данные в orderModal
-	deleteItemFromOrder = 'item:deleteFromCart', //из корзины удален товар
 	buyCart = 'cart:buy', //нажата кнопка "Оформить"
 	changePayment = 'order.payment:change', //нажатия по кнопкам с способом оплаты
-	changeAddress = 'order.address:change', //ввод в поле с адресом доставки
+	changeAddress = 'order.address:change', //ввод в поле с адресом доставки	
+	paymentSubmit = 'order:submit', //нажата кнопка для перехода в форму с контактной информацией
 	changeEmail = 'contacts.email:change', //ввод в поле с почтой
 	changePhone = 'contacts.phone:change', //ввод в поле с телефоном
-	formErrors = 'formErrors:change', //изменён объект ошибок
-	paymentSubmit = 'order:submit', //нажата кнопка для перехода в форму с контактной информацией
 	contactsSubmit = 'contacts:submit', //нажата кнопка для оплаты
+	formErrors = 'formErrors:change', //изменён объект ошибок
 }
 
 const events = new EventEmitter();
