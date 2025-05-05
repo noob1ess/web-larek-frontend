@@ -55,73 +55,76 @@ enum appEvents {
 
 const events = new EventEmitter();
 const api = new larekAPI(CDN_URL, API_URL);
-const product = new ProductModel(events);
-const order = new OrderModel(events);
-const cart = new Basket(cloneTemplate(templateList.basket), events);
-const page = new Page(pageWrapper, events);
+const productModel = new ProductModel(events);
+const orderModel = new OrderModel(events);
+const сartView = new Basket(cloneTemplate(templateList.basket), events);
+const pageView = new Page(pageWrapper, events);
 const cardPreview = new ProductCardPreview(
 	cloneTemplate(templateList.cardPreview),
 	events
 );
-const modal = new Modal(modalConainer, events);
-const formOrderPayment = new orderPaymentForm(
+const modalView = new Modal(modalConainer, events);
+const formOrderPaymentView = new orderPaymentForm(
 	cloneTemplate(templateList.orderPayment),
 	events
 );
-const formOrderContacts = new orderContactForm(
+const formOrderContactsView = new orderContactForm(
 	cloneTemplate(templateList.orderContacts),
 	events
 );
-const modalOrderSuccess = new orderSuccess(
-	cloneTemplate(templateList.orderSuccess),
-	events
-);
+
+const modalOrderSuccessView = new orderSuccess(
+	cloneTemplate(templateList.orderSuccess), {
+		onClick: () => {
+			modalView.close();
+		},
+	});
 
 events.on(appEvents.itemsChanged, () => {
-	const itemsHTMLArray = product
+	const itemsHTMLArray = productModel
 		.getProducts()
 		.map((item) =>
 			new ProductCard(cloneTemplate(templateList.cardInCatalog), events).render(
 				item
 			)
 		);
-	page.render({
-		counter: order.countProductInCart,
+		pageView.render({
+		counter: orderModel.countProductInCart,
 		catalog: itemsHTMLArray,
 	});
 });
 
 events.on(appEvents.itemSelected, ({ id }: { id: IProduct['id'] }) => {
-	cardPreview.changeActiveButton(order.checkProductInCart(id));
-	modal.content = cardPreview.render(product.getProduct(id));
-	modal.open();
+	cardPreview.changeActiveButton(orderModel.checkProductInCart(id));
+	modalView.content = cardPreview.render(productModel.getProduct(id));
+	modalView.open();
 });
 
 events.on(appEvents.modalOpen, () => {
-	page.locked = true;
+	pageView.locked = true;
 });
 
 events.on(appEvents.modalClose, () => {
-	page.locked = false;
+	pageView.locked = false;
 });
 
 events.on(appEvents.itemAddCart, ({ id }: { id: IProduct['id'] }) => {
-	order.addProductInCart(id, product.getProduct(id).price);
-	product.toggleInCart(id);
-	cardPreview.changeActiveButton(order.checkProductInCart(id));
-	page.render({ counter: order.countProductInCart });
+	orderModel.addProductInCart(id, productModel.getProduct(id).price);
+	productModel.toggleInCart(id);
+	cardPreview.changeActiveButton(orderModel.checkProductInCart(id));
+	pageView.render({ counter: orderModel.countProductInCart });
 });
 
 function handleChangeItemsInCart() {
-	const prodCart = order.listIdProductInCart.map((itemId, index) => {
+	const productsInCart = orderModel.listIdProductInCart.map((itemId, index) => {
 		return {
 			index: index, // Порядковый номер товара в корзине
-			title: product.getProduct(itemId).title, // Название товара
-			price: product.getProduct(itemId).price, // Цена товара
+			title: productModel.getProduct(itemId).title, // Название товара
+			price: productModel.getProduct(itemId).price, // Цена товара
 			id: itemId, //ид товара
 		};
 	});
-	const itemsHTMLArray = prodCart.map((item) =>
+	const itemsHTMLArray = productsInCart.map((item) =>
 		new ProductCardInBasket(
 			cloneTemplate(templateList.cardInBasket),
 			events
@@ -131,28 +134,28 @@ function handleChangeItemsInCart() {
 }
 
 events.on(appEvents.openCart, () => {
-	modal.content = cart.render({
-		total: order.totalInCart,
+	modalView.content = сartView.render({
+		total: orderModel.totalInCart,
 		productList: handleChangeItemsInCart(),
 	});
-	modal.open();
+	modalView.open();
 });
 
 events.on(appEvents.deleteItemFromOrder, (id: { id: string }) => {
 	const productId = id.id;
-	order.delProductInCart(productId, product.getProduct(productId).price);
-	modal.content = cart.render({
-		total: order.totalInCart,
+	orderModel.delProductInCart(productId, productModel.getProduct(productId).price);
+	modalView.content = сartView.render({
+		total: orderModel.totalInCart,
 		productList: handleChangeItemsInCart(),
 	});
-	page.render({ counter: order.countProductInCart });
+	pageView.render({ counter: orderModel.countProductInCart });
 });
 
 events.on(appEvents.buyCart, () => {
-	formOrderPayment.address = order.userData.address;
-	formOrderPayment.payment = order.userData.payment;
-	modal.content = formOrderPayment.render({
-		valid: order.validateOrder('address'),
+	formOrderPaymentView.address = orderModel.userData.address;
+	formOrderPaymentView.payment = orderModel.userData.payment;
+	modalView.content = formOrderPaymentView.render({
+		valid: orderModel.validateOrder('address'),
 		errors: [],
 	});
 });
@@ -164,9 +167,9 @@ events.on(
 		value: string;
 	}) => {
 		const selectMethod = data.value as PaymentMethod;
-		order.PaymentMethod = selectMethod;
-		formOrderPayment.payment = order.userData.payment;
-		formOrderPayment.valid = order.validateOrder(data.field);
+		orderModel.paymentMethod = selectMethod;
+		formOrderPaymentView.payment = orderModel.userData.payment;
+		formOrderPaymentView.valid = orderModel.validateOrder(data.field);
 	}
 );
 
@@ -176,9 +179,9 @@ events.on(
 		field: keyof Pick<IOrder, 'payment' | 'address'>;
 		value: string;
 	}) => {
-		order.Address = data.value;
-		formOrderPayment.address = order.userData.address;
-		formOrderPayment.valid = order.validateOrder(data.field);
+		orderModel.address = data.value;
+		formOrderPaymentView.address = orderModel.userData.address;
+		formOrderPaymentView.valid = orderModel.validateOrder(data.field);
 	}
 );
 
@@ -186,16 +189,16 @@ events.on(
 	appEvents.formErrors,
 	(data: { err: Partial<Record<keyof IUserData, string>> }) => {
 		const errors = (Object.values(data) as string[]).join('; ');
-		formOrderPayment.errors = errors;
-		formOrderContacts.errors = errors;
+		formOrderPaymentView.errors = errors;
+		formOrderContactsView.errors = errors;
 	}
 );
 
 events.on(appEvents.paymentSubmit, () => {
-	formOrderContacts.email = order.userData.email;
-	formOrderContacts.phone = order.userData.phone;
-	modal.content = formOrderContacts.render({
-		valid: order.validateOrder('email'),
+	formOrderContactsView.email = orderModel.userData.email;
+	formOrderContactsView.phone = orderModel.userData.phone;
+	modalView.content = formOrderContactsView.render({
+		valid: orderModel.validateOrder('email'),
 		errors: [],
 	});
 });
@@ -203,28 +206,28 @@ events.on(appEvents.paymentSubmit, () => {
 events.on(
 	appEvents.changeEmail,
 	(data: { field: keyof Pick<IOrder, 'email' | 'phone'>; value: string }) => {
-		order.Email = data.value;
-		formOrderContacts.email = order.userData.email;
-		formOrderContacts.valid = order.validateOrder(data.field);
+		orderModel.email = data.value;
+		formOrderContactsView.email = orderModel.userData.email;
+		formOrderContactsView.valid = orderModel.validateOrder(data.field);
 	}
 );
 
 events.on(
 	appEvents.changePhone,
 	(data: { field: keyof Pick<IOrder, 'email' | 'phone'>; value: string }) => {
-		order.Phone = (data.value.replace(/[^0-9]/g, '') || '').slice(0, 12);
-		formOrderContacts.phone = order.userData.phone;
-		formOrderContacts.valid = order.validateOrder(data.field);
+		orderModel.phone = (data.value.replace(/[^0-9]/g, '') || '').slice(0, 12);
+		formOrderContactsView.phone = orderModel.userData.phone;
+		formOrderContactsView.valid = orderModel.validateOrder(data.field);
 	}
 );
 
 events.on(appEvents.contactsSubmit, () => {
 	api
-		.postOrder(order.getOrderData())
+		.postOrder(orderModel.getOrderData())
 		.then((data) => {
-			modal.content = modalOrderSuccess.render(data as IOrderResult);
-			order.clearOrder();
-			page.counter = order.countProductInCart;
+			modalView.content = modalOrderSuccessView.render(data as IOrderResult);
+			orderModel.clearOrder();
+			pageView.counter = orderModel.countProductInCart;
 		})
 		.catch((err) => console.error(err));
 });
@@ -232,6 +235,6 @@ events.on(appEvents.contactsSubmit, () => {
 api
 	.getProductList()
 	.then((data) => {
-		product.setProducts(data);
+		productModel.setProducts(data);
 	})
 	.catch((err) => console.error(err));

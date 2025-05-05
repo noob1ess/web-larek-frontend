@@ -17,19 +17,19 @@ export class OrderModel {
 
 	constructor(protected events: IEvents) {}
 
-	set PaymentMethod(method: PaymentMethod) {
+	set paymentMethod(method: PaymentMethod) {
 		this.orderData.payment = method;
 	}
 
-	set Address(address: IOrder['address']) {
+	set address(address: IOrder['address']) {
 		this.orderData.address = address;
 	}
 
-	set Email(email: IOrder['email']) {
+	set email(email: IOrder['email']) {
 		this.orderData.email = email;
 	}
 
-	set Phone(phone: IOrder['phone']) {
+	set phone(phone: IOrder['phone']) {
 		this.orderData.phone = phone;
 	}
 

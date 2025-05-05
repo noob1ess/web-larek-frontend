@@ -1,13 +1,16 @@
 import { IOrderResult } from '../types';
 import { ensureElement } from '../utils/utils';
 import { Component } from './base/Component';
-import { IEvents } from './base/events';
+
+interface ISuccessActions {
+	onClick: () => void;
+}
 
 export class orderSuccess extends Component<IOrderResult> {
 	protected orderTotal: HTMLElement;
 	protected buttonClose: HTMLButtonElement;
 
-	constructor(container: HTMLElement, protected events: IEvents) {
+	constructor(container: HTMLElement, protected action: ISuccessActions) {
 		super(container);
 
 		this.orderTotal = ensureElement<HTMLElement>(
@@ -19,10 +22,7 @@ export class orderSuccess extends Component<IOrderResult> {
 			container
 		);
 
-		this.buttonClose.addEventListener('click', () => {
-			this.container.closest('.modal').classList.remove('modal_active');
-			this.events.emit('modal:close');
-		});
+		this.buttonClose.addEventListener('click', () => this.action.onClick());
 	}
 
 	set total(value: IOrderResult['total']) {
