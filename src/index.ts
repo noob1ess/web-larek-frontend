@@ -40,9 +40,10 @@ enum appEvents {
 	modalClose = 'modal:close', //закрытие модалки
 	itemSelected = 'item:selected', //клик по карточке
 	itemsChanged = 'items:changed', //изменение данных в productModal
-	itemAddCart = 'item:addInCart', //товар добавлен в корзину
-	deleteItemFromOrder = 'item:deleteFromCart', //товар удален из корзины
+	itemAddCart = 'item:addInCart', //товар добавлен в модель заказа
+	itemDeleteFromOrder = 'item:deleteFromCart', //товар удален из модели заказа
 	openCart = 'cart:open', //клик по корзине
+	deleteItemInCart = 'cart:clickDeleteItem', //в корзине нажата кнопка удаления товара
 	buyCart = 'cart:buy', //нажата кнопка "Оформить"
 	changePayment = 'order.payment:change', //нажатия по кнопкам с способом оплаты
 	changeAddress = 'order.address:change', //ввод в поле с адресом доставки	
@@ -111,11 +112,23 @@ events.on(appEvents.modalClose, () => {
 events.on(appEvents.itemAddCart, ({ id }: { id: IProduct['id'] }) => {
 	orderModel.addProductInCart(id, productModel.getProduct(id).price);
 	productModel.toggleInCart(id);
-	cardPreview.changeActiveButton(orderModel.checkProductInCart(id));
+	// cardPreview.changeActiveButton(orderModel.checkProductInCart(id));
 	pageView.render({ counter: orderModel.countProductInCart });
 });
 
-function handleChangeItemsInCart() {
+events.on(appEvents.itemDeleteFromOrder, ({id}: { id: string }) => {
+	orderModel.delProductInCart(id, productModel.getProduct(id).price);
+	pageView.render({ counter: orderModel.countProductInCart });
+});
+
+events.on(appEvents.deleteItemInCart, () => {
+	modalView.content = сartView.render({
+		total: orderModel.totalInCart,
+		productList: handleClickDeleteItemInCart(),
+	});
+})
+
+function handleClickDeleteItemInCart() {
 	const productsInCart = orderModel.listIdProductInCart.map((itemId, index) => {
 		return {
 			index: index, // Порядковый номер товара в корзине
@@ -136,19 +149,9 @@ function handleChangeItemsInCart() {
 events.on(appEvents.openCart, () => {
 	modalView.content = сartView.render({
 		total: orderModel.totalInCart,
-		productList: handleChangeItemsInCart(),
+		productList: handleClickDeleteItemInCart(),
 	});
 	modalView.open();
-});
-
-events.on(appEvents.deleteItemFromOrder, (id: { id: string }) => {
-	const productId = id.id;
-	orderModel.delProductInCart(productId, productModel.getProduct(productId).price);
-	modalView.content = сartView.render({
-		total: orderModel.totalInCart,
-		productList: handleChangeItemsInCart(),
-	});
-	pageView.render({ counter: orderModel.countProductInCart });
 });
 
 events.on(appEvents.buyCart, () => {

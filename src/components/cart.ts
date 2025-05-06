@@ -66,6 +66,7 @@ export class ProductCardInBasket extends Component<IBasketItem> {
 
 		this.itemDeleteButton.addEventListener('click', () => {
 			this.events.emit('item:deleteFromCart', { id: this.itemId });
+			this.events.emit('cart:clickDeleteItem');
 		});
 	}
 
