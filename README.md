@@ -82,9 +82,10 @@ yarn build
 - `modalClose` — закрытие модального окна.
 - `itemSelected` — выбор карточки товара
 - `itemsChanged` — изменение данных в модели товаров.
-- `itemAddCart` — добавление товара в корзину.
-- `deleteItemFromOrder` — удаление товара из корзины.
+- `itemAddCart` — добавление товара в модель заказа.
+- `itemDeleteFromOrder` — удаление товара из модели заказа.
 - `openCart` —  открытие корзины.
+- `deleteItemInCart` - удаление товара из окна корзины
 - `buyCart` —  переход к форме способа оплаты
 - `changePayment` — изменение способа оплаты.
 - `changeAddress` — ввод адреса доставки.
