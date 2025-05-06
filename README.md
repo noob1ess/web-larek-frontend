@@ -12,6 +12,8 @@
 - `src/` — исходные файлы проекта
 - `src/components/` — папка с JS компонентами
 - `src/components/base/` — папка с базовым кодом
+- `src/components/form` — папка с моделями отображения форм
+- `src/components/model` — папка с моделями данных
 
 ---
 
@@ -85,7 +87,7 @@ yarn build
 - `itemAddCart` — добавление товара в модель заказа.
 - `itemDeleteFromOrder` — удаление товара из модели заказа.
 - `openCart` —  открытие корзины.
-- `deleteItemInCart` - удаление товара из окна корзины
+- `deleteItemInCart` — удаление товара из окна корзины
 - `buyCart` —  переход к форме способа оплаты
 - `changePayment` — изменение способа оплаты.
 - `changeAddress` — ввод адреса доставки.
